@@ -3,21 +3,81 @@
 ---
 
 ## **Purpose**
+The purpose of this assignment is to work with big data by extracting Amazon customer review datasets, transforming each dataset into four Data Frames, and loading the DataFrames into an Relational Database Service (RDS) instance. As a bonus, the selected data can be analyzed using SQL or PySpark to evaluate whether the reviews from Amazon's Vine program are trustworthy and free of bias.
 
-## **Background**
+## **Process**
+
+### **Extract the Data**
+
+    Amazon customer review datasets for Pet Products and Outdoor were extracted from the AWS site into Spark DataFrames in Google Colab.  Pet Products contained 2.6 million reviews and Outdoors contained 2.3 million reviews.  
+
+### **Transform and Load the Data**
+
+    Four DataFrames were created from the original DataFrame and uploaded into an AWS database.
+| DataFrame | Desription| Columns | 
+|------|------|------|
+| review_id| primary table for customer product reviews | review_id, customer_id, product_id, product_parent, review_date |
+| products| product names | product_id, product_title |
+| customers | the number of reviews per customer| customer_id, customer_count |
+| vine | individual review star rating, helpful and total votes, whether the reviewer is a Vine participant | review_id, star_rating, helpful_votes, total_votes, vine |
+
+
+### **Analysis**
+
+    For a first look, the review data was grouped into regular reviewers and vine reviewers.  The average star rating, helpful votes, total votes were calculated for each group.  The ratio of helpful votes to total votes was calculated as an estimate of review trustworthiness. The summary data was compared between the regular and vine reviewers to see if there were extreme differences between the two groups.
+
+    Additional analyses
+      * Evaluate individual reviewers: join vine and reviewer_id table and group by individual reviewer to check individual reviewer helpful_vote_ratios
+     * Evaluate review content: update the database with the review content (review_body) to check for patterns of fraud, i.e. duplicated reviews, nonsense reviews, etc.
  
 ## **Results** 
 
-TABLE FORMAT
+Evaluate Pet Product reviews between vine users and non-vine users
 
-| Col1 | Col2 | Col3 | Col4 | Col5 | Col6 | Col7 |
-|------|------|------|------|------|------|------|
-| data | data | data | data | data | data | data |
+All reviews 
+
+|vine|avg_star_rating|avg_total_votes|avg_helpful_votes|helpful_vote_ratio|
+|------|------|------|------|------|
+|   Y|           4.07|           2.34|             1.96|             83.77|
+|   N|           4.14|           1.94|             1.65|             85.26| 
+
+    The regular and vine reviewers average star ratings are similar, indicating that the vine reviewer ratings are not inflated despite receiving the products for free.
+    The regular and vine reviewers helpful vote ratios (helpful votes/total votes) are similar, indicating that the vine reviewer ratings not viewed as more or less helpful than the regular reviewers.  In this case, helpfulness votes are a proxy for truthfulness of the review.
+
+All reviews with votes 
+
+|vine|n_users|avg_star_rating|avg_total_votes|avg_helpful_votes|helpful_vote_ratio|
+|------|------|------|------|------|------|
+|   Y|   5026|           3.95|           4.76|             3.99|             83.77|
+|   N| 974146|           3.83|           5.23|             4.46|             85.26|
+
+    Regular and vine reviews ratings and votes are similar to each other in this data subset. Note that the number of vine reviews represent only 1% of this data.
+
+Reviews with >100 votes
+
+|vine|n_users|avg_star_rating|avg_total_votes|avg_helpful_votes|helpful_vote_ratio|
+|------|------|------|------|------|------|
+|   Y|     27|           3.93|          216.3|            206.7|             95.57|
+|   N|   4561|            3.9|          236.7|           223.55|             94.44| 
+
+    Regular and vine reviews ratings and votes are similar to each other in this data subset. Note that the number of vine reviews represent only 1% of this data.
+
+Reviews with >1000 votes
+
+|vine|n_users|avg_star_rating|avg_total_votes|avg_helpful_votes|helpful_vote_ratio|
+|------|------|------|------|------|------|
+|   Y|      1|            4.0|         1277.0|           1239.0|             97.02|
+|   N|     77|           3.96|        1619.64|          1562.19|             96.45| 
+
+    Regular and vine reviews ratings and votes are similar to each other in this data subset. Note that the number of vine reviews represent only 1% of this data.
+
 ---
 
 ## **Summary** 
 
+ A preliminary analysis of the Pet Products reviews from Vine reviewers and regular reviewers indicates that the average rating and trustworthiness (as measured by proxy) are similar between the two groups.  The Vine reviews do not appear to show bias as compared to the regular reviews.
  
+ Additional analyses could be performed to evaluate trustworthiness of individual reviewers and/or evaluate review content for anomalies.  
 
 ---
 
